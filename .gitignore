@@ -1,0 +1,8 @@
+netconsole
+udpee.pro.user
+*.o
+udpee
+udpee_arm
+Makefile
+*.txt
+*.out.*
