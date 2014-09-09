@@ -1,0 +1,13 @@
+                 UDPEE
+
+To find out how it works, run the program.
+
+TODO
+
+* Use <ifaddrs.h> to find broadcast addresses
+* command line arguments: optargs, -h, writing to
+  file is optional
+* multithreading so a 1.5 second block on file writes
+  doesn't cripple UDP sending or stdout writing.
+  1 producer, 3 consumers
+* Profile if load ever gets large (not yet)
