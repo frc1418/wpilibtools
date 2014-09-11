@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <list>
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -8,8 +9,6 @@
 #include <errno.h>
 #include <ifaddrs.h>
 #include <net/if.h>
-
-#include <list>
 
 void printInet4Address(sockaddr_in* s) {
 	char name[50];
@@ -65,10 +64,10 @@ public:
 			broadcast = true;
 			int optval = 1;
 			int err = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &optval,
-					sizeof(optval));
+                                 sizeof(optval));
 			if (err == -1) {
 				std::cerr << "Setting socket to broadcast: Errno " << errno
-						<< std::endl;
+                          << std::endl;
 				failed = true;
 				close(sock);
 				return;
@@ -80,18 +79,18 @@ public:
 	~UDPSocket() {
 		if (!failed) {
 			close(sock);
-		}
+        }
 	}
-	static void send(int sock, const std::string &data, sockaddr_in* sa) {
+    static void send(int sock, const std::string& data, sockaddr_in* sa) {
 		ssize_t sent = sendto(sock, data.c_str(), data.length(), 0,
-				(sockaddr*) sa, sizeof(*sa));
+                              (sockaddr*) sa, sizeof(*sa));
 		if (sent == -1) {
 			std::cerr << "Packet send failed: Errno " << errno << std::endl;
 		}
 	}
 	void write(std::string data) {
 		if (!failed) {
-			if (broadcast) {
+            if (broadcast) {
 				std::list<in_addr> addrs = getBroadcastAddrs();
 				std::list<in_addr>::iterator iend = addrs.end();
 				for (std::list<in_addr>::iterator i = addrs.begin(); i != iend; ++i) {
@@ -115,7 +114,9 @@ private:
 };
 
 std::string modes[][2] = { { "loopback", "127.0.0.1" }, { "broadcast",
-		"255.255.255.255" }, { "multicast", "224.0.0.1" } };
+        "255.255.255.255"
+    }, { "multicast", "224.0.0.1" }
+};
 
 void help() {
 	std::string opts(modes[0][0]);
@@ -126,7 +127,7 @@ void help() {
 	std::cerr << "Usage: udpee [" << opts << "] [LOGFILE]" << std::endl;
 	std::cerr << "Reads standard input, sends it via UDP to port" << std::endl;
 	std::cerr << "6666, and logs it to a file and to standard output"
-			<< std::endl;
+              << std::endl;
 }
 
 int main(int argc, const char** argv) {
