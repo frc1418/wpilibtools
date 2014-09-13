@@ -157,8 +157,9 @@ int main(int argc, const char** argv) {
 			std::ofstream output(argv[2]);
 			while (std::getline(std::cin, packet)) {
 				std::cout << packet << std::endl;
-				output << packet << std::endl;
-				sock.write(packet.append("\n"));
+                packet.append("\n");
+				output << packet;
+				sock.write(packet);
 			}
 		} else {
 			while (std::getline(std::cin, packet)) {
