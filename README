@@ -1,13 +1,19 @@
                  UDPEE
 
-To find out how it works, run the program.
+This program reads standard input and writes it (line buffered) to stardard output and via UDP to port 6666. It can optionally log its input to a file.
 
-TODO
+To install, cross-compile the program with the arm-none-linux-gnueabi-4.4.1 toolchain (you may need to adjust your $PATH) and ftp copy it to /home/admin/udpee_arm. Then edit /usr/local/frc/bin/frcRunRobot.sh and, in one of the last lines, replace
 
-* Use <ifaddrs.h> to find broadcast addresses
-* command line arguments: optargs, -h, writing to
-  file is optional
-* multithreading so a 1.5 second block on file writes
-  doesn't cripple UDP sending or stdout writing.
-  1 producer, 3 consumers
-* Profile if load ever gets large (not yet)
+[... preceding code] > {logfile} 2>&1
+
+with
+
+[... preceding code] | /home/admin/udpee_arm broadcast {logfile} 2>&1
+
+One small adjustment must be made to the robot code: because stdout and stderr are buffered in large chunks when the receiving end of the pipe is not a tty, packets are only sent when a new chunk is delivered. Adding the calls (from stdio.h)
+
+   setlinebuf(stdin);
+   setlinebuf(stdout);
+
+somewhere in the robot initialization code should enable the helper utility to send every line as soon as it is written (std::cout << x << std::endl; flushes the buffer, so if you only use C++ style IO this adjustment is unnecessary).
+
