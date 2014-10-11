@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+DEBNAMEP=$(shell dpkg-parsechangelog -c1 |sed -n 's/^Source: \(.*\)$$/\1/p')_$(shell dpkg-parsechangelog -c1 |sed -n 's/^Version: \(.*\)$$/\1/p')
+
+%:
+	dh $@ 
+	
+override_dh_auto_configure:
+	dh_auto_configure $@ -- -DCMAKE_TOOLCHAIN_FILE=../../allwpilib-git/arm-toolchain.cmake
+	
+override_dh_shlibdeps:
+	echo "shlibs:Depends=libstdc++6-4.9, libc6 (>= 2.17), libgcc1 (>= 4.7)" >> debian/netconsole-launcher.substvars
+	
+override_dh_gencontrol:
+	dh_gencontrol $@
+	sed --in-place= 's/Architecture: .*/Architecture: armv7a-vfp-neon/' debian/netconsole-launcher/DEBIAN/control
+
+override_dh_strip:
+	DEB_HOST_GNU_TYPE=arm-frc-linux-gnueabi dh_strip $@
+
+override_dh_builddeb:
+	dh_builddeb $@
+	cp ../$(DEBNAMEP)_armv7a-vfp-neon.deb ../$(DEBNAMEP)_$(DEB_HOST_ARCH).deb
+
