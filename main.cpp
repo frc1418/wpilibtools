@@ -151,6 +151,7 @@ public:
 	{
 		dup2(CHILD_READ, STDIN_FILENO);
 		dup2(CHILD_WRITE, STDOUT_FILENO);
+		dup2(STDOUT_FILENO, STDERR_FILENO);
 		close_child();
 	}
 
