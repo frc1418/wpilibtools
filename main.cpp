@@ -173,18 +173,18 @@ public:
 
 int forkChild(int argc, char* argv[])
 {
-	cout << "➔ Launching «" << argv[1];
+	cout << "➔ Launching «'" << argv[1];
 	for (int i = 2; i < argc; i++)
 	{
-		cout << argv[i];
+		cout << "' '" << argv[i];
 	}
-	cout << "»" << endl;
+	cout << "'»" << endl;
 	cout.flush();
 
-	execvp(argv[1], &argv[2]);
+	execvp(argv[1], &argv[1]);
 
-	perror("execvp");
-	return 1;
+	// if we are still here, something went wrong...
+	throw nec_error("execvp");
 }
 
 int main(int argc, char* argv[])
