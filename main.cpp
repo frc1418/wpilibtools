@@ -58,13 +58,13 @@ addr_vector broadcast_addrs()
  */
 class nec_socket
 {
-	int fd;
+	int fd = -1;
 	sockaddr_in dest, src;
 	addr_vector addrs;
 
 public:
 	nec_socket()
-		: dest(), src()
+		: dest(), src(), addrs()
 	{
 		dest.sin_family = AF_INET;
 		dest.sin_port = (in_port_t)htons(NETCONSOLE_PORT);
@@ -85,7 +85,7 @@ public:
 		int enable = 1;
 		if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &enable, sizeof(enable)) < 0)
 			throw nec_error("socket options");
-		if (bind(fd, (sockaddr*)&src, sizeof(src)) < 0)
+		if (bind(fd, reinterpret_cast<sockaddr*>(&src), sizeof(src)) < 0)
 			throw nec_error("socket bind");
 		return fd;
 	}
@@ -104,7 +104,7 @@ public:
 		for (auto addr : addrs)
 		{
 			dest.sin_addr.s_addr = addr;
-			if (sendto(fd, buffer, length, 0, (sockaddr*)&dest, sizeof(dest)) < 0)
+			if (sendto(fd, buffer, length, 0, reinterpret_cast<sockaddr*>(&dest), sizeof(dest)) < 0)
 				throw nec_error("sendto");
 		}
 	}
@@ -239,13 +239,13 @@ int main(int argc, char* argv[])
 				else if (len < 0)
 					throw nec_error("read");
 				cout.write(buffer, len); // TODO: we might want to make this optional
-				socket.write(buffer, len);
+				socket.write(buffer, static_cast<size_t>(len));
 			}
 
 			// also check for incoming socket data
 			if (FD_ISSET(raw_socket, &fds))
 			{
-				if (write(pipes.write_fd(), buffer, socket.read(buffer)) < 0)
+				if (write(pipes.write_fd(), buffer, static_cast<size_t>(socket.read(buffer))) < 0)
 					throw nec_error("write");
 			}
 		}
