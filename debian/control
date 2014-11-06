@@ -1,0 +1,13 @@
+Source: netconsole-launcher
+Section: utils
+Priority: optional
+Maintainer: Patrick Plenefisch <phplenefisch@wpi.edu>
+Build-Depends: debhelper (>= 9.0.0), cmake
+Standards-Version: 3.9.4
+
+Package: netconsole-launcher
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: NetConsole launcher
+ This package provides the NetConsole launcher to send a program's standard
+ input and output over NetConsole

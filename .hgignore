@@ -1,0 +1,7 @@
+syntax: glob
+CMakeLists.txt.user
+obj-*/
+debian/netconsole-launcher/
+*.log
+*.substvars
+debian/files
