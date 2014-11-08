@@ -10,7 +10,7 @@ DEBNAMEP=$(shell dpkg-parsechangelog -c1 |sed -n 's/^Source: \(.*\)$$/\1/p')_$(s
 	dh $@ 
 	
 override_dh_auto_configure:
-	dh_auto_configure $@ -- -DCMAKE_TOOLCHAIN_FILE=../../allwpilib-git/arm-toolchain.cmake
+	dh_auto_configure $@ -- -DCMAKE_TOOLCHAIN_FILE=`frc-cmake-toolchain`
 	
 override_dh_shlibdeps:
 	echo "shlibs:Depends=libstdc++6-4.9, libc6 (>= 2.17), libgcc1 (>= 4.7)" >> debian/netconsole-launcher.substvars
