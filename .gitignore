@@ -2,7 +2,7 @@ build/
 netconsole
 udpee.pro.user
 *.o
-udpee
+udpee/udpee
 udpee_arm
 Makefile
 *.txt
