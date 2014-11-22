@@ -8,3 +8,4 @@ Makefile
 *.txt
 *.out.*
 *.orig
+ejdk*
