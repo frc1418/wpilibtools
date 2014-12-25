@@ -1,1 +1,29 @@
-apply from: "http://dl.bintray.com/content/shemnon/javafx-gradle/8.1.1/javafx.plugin"
+apply from: 'http://dl.bintray.com/content/shemnon/javafx-gradle/8.1.1/javafx.plugin'
+
+javafx {
+  mainClass 'edu.wpi.first.wpilib.javainstaller.MainApp'
+}
+
+repositories {
+  mavenCentral()
+} 
+task uberjar(type: Jar) {
+  description 'Builds the fat jar with all dependencies. This is the task to run for releasing a new version of the installer'
+  dependsOn configurations.runtime
+  manifest.attributes('Main-Class': 'edu.wpi.first.wpilib.javainstaller.MainApp')
+  from sourceSets.main.output
+  from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+dependencies {
+  compile 'org.apache.commons:commons-compress:1.9'
+  compile 'com.jcraft:jsch:0.1.51'
+  compile 'org.controlsfx:controlsfx:8.20.8'
+  compile 'org.apache.logging.log4j:log4j-api:2.1'
+  compile 'org.apache.logging.log4j:log4j-core:2.1'
+  runtime 'org.apache.commons:commons-compress:1.9'
+  runtime 'com.jcraft:jsch:0.1.51'
+  runtime 'org.controlsfx:controlsfx:8.20.8'
+  runtime 'org.apache.logging.log4j:log4j-api:2.1'
+  runtime 'org.apache.logging.log4j:log4j-core:2.1'
+}
