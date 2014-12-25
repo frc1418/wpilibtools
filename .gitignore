@@ -9,3 +9,5 @@ Makefile
 *.out.*
 *.orig
 ejdk*
+*~
+.gradle/
