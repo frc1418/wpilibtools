@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
@@ -23,7 +23,7 @@ import java.net.SocketTimeoutException;
  * Handles ensuring that the internet is up and running on the system before proceeding
  */
 @SuppressWarnings("deprecation")
-public class InternetController extends AbstractController {
+public class InternetController extends AbstractControllerOld {
 
     // Default name for the downloaded JRE.
     private static final String JRE_DEFAULT_NAME = "ejdk-8u6-fcs-b23-linux-arm-vfp-sflt-12_jun_2014.tar.gz";

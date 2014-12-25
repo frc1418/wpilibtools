@@ -1,6 +1,6 @@
 package edu.wpi.first.wpilib.javainstaller;
 
-import edu.wpi.first.wpilib.javainstaller.Controllers.ErrorController;
+import edu.wpi.first.wpilib.javainstaller.controllers.ErrorController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;

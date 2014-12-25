@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.event.ActionEvent;
@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * Common superclass to handle common functions among all controllers, such as showing the exit popup on cancel
  */
-public abstract class AbstractController {
+public abstract class AbstractControllerOld {
 
     private final String m_previousLocation;
     @FXML
@@ -24,7 +24,7 @@ public abstract class AbstractController {
     /**
      * @param previousLocation The screen to go to when the back button is pressed
      */
-    protected AbstractController(String previousLocation) {
+    protected AbstractControllerOld(String previousLocation) {
         m_previousLocation = previousLocation;
     }
 

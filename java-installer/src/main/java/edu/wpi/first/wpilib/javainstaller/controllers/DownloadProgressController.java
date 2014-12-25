@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
@@ -18,7 +18,7 @@ import java.net.*;
 /**
  * Starts the download and shows the user the download and extract process progress
  */
-public class DownloadProgressController extends AbstractController {
+public class DownloadProgressController extends AbstractControllerOld {
     @FXML
     private Label percentLabel;
     @FXML

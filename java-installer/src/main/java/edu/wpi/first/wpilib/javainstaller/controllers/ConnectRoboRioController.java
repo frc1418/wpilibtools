@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;

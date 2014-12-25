@@ -1,4 +1,6 @@
 apply from: 'http://dl.bintray.com/content/shemnon/javafx-gradle/8.1.1/javafx.plugin'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
 
 javafx {
   mainClass 'edu.wpi.first.wpilib.javainstaller.MainApp'

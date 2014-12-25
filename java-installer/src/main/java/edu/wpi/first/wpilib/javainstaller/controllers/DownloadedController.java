@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.event.ActionEvent;
@@ -18,7 +18,7 @@ import java.io.IOException;
  * Alerts the user to being done the download. Also opens a window to the JRE download location if the user needs to move
  * computer
  */
-public class DownloadedController extends AbstractController {
+public class DownloadedController extends AbstractControllerOld {
 
     @FXML
     private Label textView;

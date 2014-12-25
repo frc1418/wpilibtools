@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
@@ -23,7 +23,7 @@ import java.net.URL;
 /**
  * Walks the user through downloading the JRE
  */
-public class DownloadController extends AbstractController {
+public class DownloadController extends AbstractControllerOld {
 
     public static final URL JRE_URL;
     public static final String JRE_URL_STRING = "http://www.oracle.com/technetwork/java/embedded/embedded-se/downloads/javase-embedded-downloads-2209751.html";

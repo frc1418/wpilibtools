@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilib.javainstaller.Controllers;
+package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.event.ActionEvent;
@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * Shows the welcome screen
  */
-public class WelcomeController extends AbstractController {
+public class WelcomeController extends AbstractControllerOld {
 
     @FXML
     private BorderPane mainView;
