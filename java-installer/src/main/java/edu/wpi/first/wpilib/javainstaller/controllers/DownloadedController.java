@@ -3,8 +3,6 @@ package edu.wpi.first.wpilib.javainstaller.controllers;
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import net.mightypork.rpack.utils.DesktopApi;
@@ -12,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Alerts the user to being done the download. Also opens a window to the JRE download location if the user needs to move

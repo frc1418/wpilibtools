@@ -65,7 +65,7 @@ public class SuccessController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/connect_roborio.fxml"));
             Parent root = loader.load();
             ConnectRoboRioController controller = loader.getController();
-            controller.initialize(m_jreFolder, m_tarLocation, m_untarredLocation);
+//            controller.initialize(m_jreFolder, m_tarLocation, m_untarredLocation);
             mainView.getScene().setRoot(root);
         } catch (IOException e) {
             m_logger.error("Error when loading intro_screen from restart");

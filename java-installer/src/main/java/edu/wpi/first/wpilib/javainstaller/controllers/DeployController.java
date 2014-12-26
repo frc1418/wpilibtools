@@ -54,7 +54,7 @@ public class DeployController {
         try {
             Parent root = loader.load();
             ConnectRoboRioController controller = loader.getController();
-            controller.initialize(m_jreLocation, m_tarLocation, m_untarredLocation);
+//            controller.initialize(m_jreLocation, m_tarLocation, m_untarredLocation);
             mainView.getScene().setRoot(root);
         } catch (IOException e) {
             m_logger.error("Could not load the connect roboRio controller");

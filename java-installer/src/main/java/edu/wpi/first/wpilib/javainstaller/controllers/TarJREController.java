@@ -1,11 +1,9 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.Arguments;
-import edu.wpi.first.wpilib.javainstaller.ControllerFactory;
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -65,7 +63,7 @@ public class TarJREController extends AbstractController {
             tgzStream.close();
             m_logger.debug("Finished zip, starting md5 hash");
 
-            fileLabel.setText("Generating md5 hash");
+            Platform.runLater(() -> fileLabel.setText("Generating md5 hash"));
             String md5Hash = MainApp.hashFile(tgzFile);
             OutputStream md5Out = new BufferedOutputStream(new FileOutputStream(tgzMd5File));
             md5Out.write(md5Hash.getBytes());
@@ -102,7 +100,7 @@ public class TarJREController extends AbstractController {
         TarArchiveEntry tarEntry = new TarArchiveEntry(f, entryName);
         tOut.putArchiveEntry(tarEntry);
         m_logger.debug("Processing file " + f.getAbsolutePath() + ", putting tar entry is " + entryName);
-        fileLabel.setText("Processing " + f.getPath());
+        Platform.runLater(() -> fileLabel.setText("Processing " + f.getPath()));
 
         if (f.isFile()) {
             FileInputStream fin = new FileInputStream(f);
