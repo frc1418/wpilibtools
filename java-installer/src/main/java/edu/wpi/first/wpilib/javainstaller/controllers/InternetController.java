@@ -1,13 +1,10 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.Arguments;
-import edu.wpi.first.wpilib.javainstaller.ControllerFactory;
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
@@ -124,7 +121,7 @@ public class InternetController extends AbstractController {
         // If that didn't check out, check for the jre creator
         if (jreCreator.exists() && MainApp.checkJreCreator(jreCreator)) {
             m_logger.debug("Found JRE creator, setting next controller to be untar");
-            m_args.setArgument(Arguments.Argument.JRE_CREATOR_ZIP, jreCreator.getAbsolutePath());
+            m_args.setArgument(Arguments.Argument.JRE_CREATOR_TAR, jreCreator.getAbsolutePath());
             setupNextButton(Arguments.Controller.UNTAR_CONTROLLER);
             return true;
         }

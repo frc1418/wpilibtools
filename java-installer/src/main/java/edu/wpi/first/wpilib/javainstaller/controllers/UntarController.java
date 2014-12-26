@@ -1,10 +1,10 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
-import edu.wpi.first.wpilib.javainstaller.MainApp;
+import edu.wpi.first.wpilib.javainstaller.Arguments;
+import edu.wpi.first.wpilib.javainstaller.ControllerFactory;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -20,117 +20,131 @@ import java.util.zip.GZIPInputStream;
  * Prompts the user to either move the JRE zip to a computer that has access to the roboRio, or tells them to move
  * to connect to the robot
  */
-public class UntarController {
+public class UntarController extends AbstractController {
 
     private static final int DEFAULT_BUFFER_SIZE = 1024;
 
     @FXML
-    private BorderPane mainView;
-
-    @FXML
     private Label fileNameLabel;
 
-    private File jreFile;
+    private File jreCreatorTar;
     private Thread decompressThread;
     private final Logger m_logger = LogManager.getLogger();
 
-    public void initialize(String jrePath) {
-        jreFile = new File(jrePath);
-        decompressThread = new Thread(() -> {
-            // Open the jar file
-            TarArchiveInputStream jreTar = null;
-            File saveDir = jreFile.getParentFile();
-            m_logger.debug("Starting decompress of file " + jrePath + " to " + saveDir.getAbsolutePath());
-            try {
-                jreTar = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(new FileInputStream(jreFile))));
-                TarArchiveEntry entry = jreTar.getNextTarEntry();
-                // We save the first directory that we see to extract the inner folder name later.
-                String firstDirectory = null;
-                while (entry != null) {
-                    File destPath = new File(saveDir, entry.getName());
-                    final TarArchiveEntry finalEntry = entry;
-                    Platform.runLater(() -> fileNameLabel.setText(finalEntry.getName()));
-                    m_logger.debug("Untarring " + entry.getName());
-                    if (entry.isDirectory()) {
-                        // If the entry is a directory, then make the directories in the destination
-                        destPath.mkdirs();
-                        // If this is the first directory we've made, save the string
-                        if (firstDirectory == null) {
-                            firstDirectory = entry.getName();
-                        }
-                    } else {
-                        // Otherwise, read in the entry and write it to the disk
-                        BufferedOutputStream output = null;
-                        try {
-                            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-                            int readBytes = 0;
-                            output = new BufferedOutputStream(new FileOutputStream(destPath));
+    public UntarController() {
+        super(false, Arguments.Controller.UNTAR_CONTROLLER);
+    }
 
-                            // Write the tar entry to the current file
-                            while ((readBytes = jreTar.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1) {
-                                output.write(buffer, 0, readBytes);
-                            }
-                        } catch (IOException | IllegalArgumentException e) {
-                            m_logger.warn("Couldn't untar entry " + entry.getName(), e);
-                        } finally {
-                            if (output != null) {
-                                output.flush();
-                                output.close();
-                            }
-                        }
-
-                    }
-                    entry = jreTar.getNextTarEntry();
-                }
-                final String finalFirstDirectory = firstDirectory;
-                Platform.runLater(() -> {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/create_jre.fxml"));
-                    try {
-                        Parent root = loader.load();
-                        CreateJreController controller = loader.getController();
-                        assert finalFirstDirectory != null;
-                        controller.initialize(saveDir.getAbsolutePath() + File.separator + finalFirstDirectory.substring(0, finalFirstDirectory.indexOf("/")),
-                                jreFile.getAbsolutePath());
-                        mainView.getScene().setRoot(root);
-                    } catch (IOException e) {
-                        m_logger.error("Could not load create jre window", e);
-                        MainApp.showErrorScreen(e);
-                    }
-                });
-            } catch (IOException e) {
-                m_logger.error("Exception when untarring the JRE", e);
-                Platform.runLater(() -> MainApp.showErrorScreen(e));
-            } finally {
-                if (jreTar != null) {
-                    try {
-                        jreTar.close();
-                    } catch (IOException e) {
-                        m_logger.warn("Exception when closing the tar stream", e);
-                    }
-                }
-            }
-        });
+    @Override
+    protected void initializeClass() {
+        jreCreatorTar = new File(m_args.getArgument(Arguments.Argument.JRE_CREATOR_TAR));
+        decompressThread = new Thread(this::untarJRECreator);
         decompressThread.setDaemon(true);
         decompressThread.start();
     }
 
     @FXML
+    @Override
     public void handleBack(ActionEvent event) {
         decompressThread.interrupt();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/downloaded.fxml"));
-        try {
-            Parent root = loader.load();
-            DownloadedController controller = loader.getController();
-            controller.initialize(jreFile.getAbsolutePath());
-            mainView.getScene().setRoot(root);
-        } catch (IOException e) {
-            m_logger.error("Could not load the downloaded view");
-            MainApp.showErrorScreen(e);
-        }
+        super.handleBack(event);
     }
 
     @FXML
-    public void handleCancel(ActionEvent event) {
-        MainApp.showExitPopup();
+    @Override
+    protected void handleCancel(ActionEvent event) {
+        decompressThread.interrupt();
+        super.handleBack(event);
+    }
+
+    private void untarJRECreator() {
+        // Open the jar file
+        TarArchiveInputStream jreTar = null;
+        File saveDir = jreCreatorTar.getParentFile();
+        m_logger.debug("Starting decompress of file " + jreCreatorTar.getAbsolutePath() + " to " + saveDir.getAbsolutePath());
+        try {
+            jreTar = new TarArchiveInputStream(new GZIPInputStream(new BufferedInputStream(new FileInputStream(jreCreatorTar))));
+            TarArchiveEntry entry = jreTar.getNextTarEntry();
+            // We save the first directory that we see to extract the inner folder name later.
+            String firstDirectory = null;
+            while (entry != null) {
+                File destPath = new File(saveDir, entry.getName());
+                final TarArchiveEntry finalEntry = entry;
+                Platform.runLater(() -> fileNameLabel.setText(finalEntry.getName()));
+                m_logger.debug("Untarring " + entry.getName());
+                if (entry.isDirectory()) {
+                    // If the entry is a directory, then make the directories in the destination
+                    destPath.mkdirs();
+                    // If this is the first directory we've made, save the string
+                    if (firstDirectory == null) {
+                        firstDirectory = entry.getName();
+                    }
+                } else {
+                    // Otherwise, read in the entry and write it to the disk
+                    BufferedOutputStream output = null;
+                    try {
+                        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+                        int readBytes = 0;
+                        output = new BufferedOutputStream(new FileOutputStream(destPath));
+
+                        // Write the tar entry to the current file
+                        while ((readBytes = jreTar.read(buffer, 0, DEFAULT_BUFFER_SIZE)) != -1) {
+                            output.write(buffer, 0, readBytes);
+                        }
+                    } catch (IOException | IllegalArgumentException e) {
+                        m_logger.warn("Couldn't untar entry " + entry.getName(), e);
+                    } finally {
+                        if (output != null) {
+                            output.flush();
+                            output.close();
+                        }
+                    }
+
+                }
+                entry = jreTar.getNextTarEntry();
+            }
+            final String finalFirstDirectory = firstDirectory;
+            final boolean interrupted = Thread.interrupted();
+            Platform.runLater(() -> {
+                // Ensure that we weren't interrupted during the untar process
+                if (interrupted) {
+                    return;
+                }
+
+                // Check to make sure the first directory is not null. If it is, there was an error untarring that
+                // wasn't caught.
+                if (finalFirstDirectory == null) {
+                    m_logger.error("An unknown error when untarring has occurred: The first directory is null");
+                    showErrorScreen(new IllegalArgumentException("An unknown error has occurred."));
+                    return;
+                }
+                m_args.setArgument(Arguments.Argument.JRE_CREATOR_FOLDER,
+                        saveDir.getAbsolutePath() +
+                                File.separator +
+                                // This is the first directory entry that was untarred to. We find up until the first "/"
+                                // argument to get the top directory. Because this is generated by the apache commons
+                                // untar library, it is always "/", even on Windows systems
+                                finalFirstDirectory.substring(0, finalFirstDirectory.indexOf("/")));
+                try {
+                    Parent root = ControllerFactory.getInstance()
+                            .initializeController(Arguments.Controller.CREATE_JRE_CONTROLLER, m_args);
+                    mainView.getScene().setRoot(root);
+                } catch (IOException e) {
+                    m_logger.error("Could not load create jre window", e);
+                    showErrorScreen(e);
+                }
+            });
+        } catch (IOException e) {
+            m_logger.error("Exception when untarring the JRE", e);
+            Platform.runLater(() -> showErrorScreen(e));
+        } finally {
+            if (jreTar != null) {
+                try {
+                    jreTar.close();
+                } catch (IOException e) {
+                    m_logger.warn("Exception when closing the tar stream", e);
+                }
+            }
+        }
     }
 }

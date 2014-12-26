@@ -53,17 +53,4 @@ public class DownloadedController extends AbstractControllerOld {
         File parent = jreFile.getParentFile();
         DesktopApi.open(parent);
     }
-
-    public void handleNext(ActionEvent event) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/untar.fxml"));
-        try {
-            Parent root = loader.load();
-            UntarController controller = loader.getController();
-            controller.initialize(m_path);
-            mainView.getScene().setRoot(root);
-        } catch (IOException e) {
-            m_logger.error("Could not load the untar controller", e);
-            MainApp.showErrorScreen(e);
-        }
-    }
 }

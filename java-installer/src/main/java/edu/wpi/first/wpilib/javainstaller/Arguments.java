@@ -71,7 +71,7 @@ public class Arguments {
      * This enum represents all of the different arguments that can be passed around.
      */
     public enum Argument {
-        JRE_CREATOR_ZIP, JRE_CREATOR_FOLDER, JRE_FOLDER, JRE_TAR, JRE_CREATOR_URL
+        JRE_CREATOR_TAR, JRE_CREATOR_FOLDER, JRE_FOLDER, JRE_TAR, JRE_CREATOR_URL
     }
 
     /**

@@ -94,7 +94,7 @@ public class DownloadProgressController extends AbstractController {
                 // Get the location of the current directory and the file name
                 File currentDirectory = new File(".");
                 String fileName = m_downloadUrl.getPath().substring(m_downloadUrl.getPath().lastIndexOf("/") + 1);
-                File javaFile = new File(currentDirectory.getAbsolutePath() + File.separator + fileName);
+                File jreCreatorFile = new File(currentDirectory.getAbsolutePath() + File.separator + fileName);
 
                 // Set up the streams
                 downloadConnection = (HttpURLConnection) m_downloadUrl.openConnection();
@@ -124,8 +124,7 @@ public class DownloadProgressController extends AbstractController {
                 m_logger.debug("Final url is " + downloadConnection.getURL());
 
                 downloadStream = new BufferedInputStream(downloadConnection.getInputStream());
-                outputStream = new BufferedOutputStream(new FileOutputStream(javaFile));
-
+                outputStream = new BufferedOutputStream(new FileOutputStream(jreCreatorFile));
 
                 // Loop until the file is downloaded
                 byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
@@ -161,6 +160,7 @@ public class DownloadProgressController extends AbstractController {
                 m_logger.debug("Downloaded JRE");
                 outputStream.flush();
                 outputStream.close();
+                m_args.setArgument(Arguments.Argument.JRE_CREATOR_TAR, jreCreatorFile.getAbsolutePath());
             } catch (IOException e) {
                 m_logger.error("Could not download the JRE", e);
                 Platform.runLater(() -> showErrorScreen(e));
