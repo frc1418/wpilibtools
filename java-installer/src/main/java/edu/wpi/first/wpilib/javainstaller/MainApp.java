@@ -27,8 +27,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class MainApp extends Application {
 
-    // The md5 hash of a fully downloaded jre
-    private static final String JRE_HASH = "082F08397B0D3F63844AB472B5111C8C";
     private static final Logger logger = LogManager.getLogger();
     private static Scene _scene;
 
@@ -112,11 +110,21 @@ public class MainApp extends Application {
      * @param jre The jre to check
      * @return True if it passes the MD5 check
      */
-    public static boolean checkJre(File jre) {
+    public static boolean checkJreCreator(File jre) {
         logger.debug("Found JRE, checking hash");
+        return hashFile(jre, Arguments.JRE_CREATOR_HASH);
+    }
+
+    /**
+     * Hashes a given file with the md5 algorithm, and compares it to a given hash.
+     * @param file The file to verify
+     * @param md5Hash The hash to check
+     * @return True if the hash verifies, false if it doesn't or if there is an error hashing the file
+     */
+    public static boolean hashFile(File file, String md5Hash) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            try (InputStream is = Files.newInputStream(Paths.get(jre.getAbsolutePath()))) {
+            try (InputStream is = Files.newInputStream(Paths.get(file.getAbsolutePath()))) {
                 DigestInputStream ds = new DigestInputStream(is, md);
                 byte[] input = new byte[1024];
 
@@ -130,8 +138,8 @@ public class MainApp extends Application {
                     sb.append(String.format("%02X", b));
                 }
                 String hashString = sb.toString();
-                logger.debug("Computed hash is " + hashString + ", official hash is " + JRE_HASH);
-                return hashString.equalsIgnoreCase(JRE_HASH);
+                logger.debug("Computed hash is " + hashString + ", official hash is " + md5Hash);
+                return hashString.equalsIgnoreCase(md5Hash);
             }
         } catch (NoSuchAlgorithmException | IOException e) {
             logger.warn("Could not create md5 hash", e);

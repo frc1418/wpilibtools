@@ -1,5 +1,6 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
+import edu.wpi.first.wpilib.javainstaller.Arguments;
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -8,14 +9,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.Dialogs;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 
@@ -23,97 +22,47 @@ import java.net.SocketTimeoutException;
  * Handles ensuring that the internet is up and running on the system before proceeding
  */
 @SuppressWarnings("deprecation")
-public class InternetController extends AbstractControllerOld {
+public class InternetController extends AbstractController {
 
-    // Default name for the downloaded JRE.
-    private static final String JRE_DEFAULT_NAME = "ejdk-8u6-fcs-b23-linux-arm-vfp-sflt-12_jun_2014.tar.gz";
-
-    @FXML
-    private BorderPane mainView;
-
-    @FXML
-    private Button nextButton;
+    private final String NO_JRE_STRING = "For this first step, we need to be connected to the internet." +
+            " To proceed, click next. If you cannot get internet on this computer, you can run this installer" +
+            " on another computer to download the JRE, and then transfer it with a flash drive" +
+            " and click Already Downloaded.";
+    private final String JRE_FOUND_STRING = "The JRE was found already downloaded. If you want to proceed with" +
+            " the found JRE (recommended), click Next. If you would like to redownload the JRE, click Redownload JRE";
 
     @FXML
     private Button alreadyDownloadedButton;
+
+    @FXML
+    private Button nextButton;
 
     @FXML
     private Label textView;
 
     private final Logger m_logger = LogManager.getLogger();
 
-    private boolean jreDetected = false;
-
     public InternetController() {
-        super("/fxml/intro_screen.fxml");
+        super(true, Arguments.Controller.INTERNET_CONTROLLER);
+    }
+
+    @Override
+    protected void initializeClass() {
+       // Set off the check JRE thread
+        nextButton.setDisable(true);
+        Thread checkJREThread = new Thread(() -> checkExistingJRE(Arguments.JRE_DEFAULT_NAME, Arguments.JRE_CREATOR_DEFAULT_NAME));
+        checkJREThread.setDaemon(true);
+        checkJREThread.start();
     }
 
     @FXML
-    private void initialize() {
-        // Attempt to detect the JRE
-        final File jre = new File(JRE_DEFAULT_NAME);
-        // If the JRE is already downloaded and fully downloaded
-        if (jre.exists() && MainApp.checkJre(jre)) {
-            jreDetected = true;
-            alreadyDownloadedButton.setText("Redownload JRE");
-            textView.setText("The JRE was found already downloaded. If you want to proceed with the found JRE (recommended), click Next. If you would like to redownload the JRE, click Redownload JRE");
-            alreadyDownloadedButton.setOnAction((action) -> handleInternetCheck());
-            nextButton.setOnAction((action) -> sendToUntar(jre));
-        }
-    }
-
-    @FXML
-    public void handleInternetCheck() {
+    public void handleInternetCheck(ActionEvent event) {
         // Handle the connection test on a background thread to avoid blocking the ui. If the user clicks next and can't
         // get to the internet, they have the ability to stop the program without waiting for a timeout
         nextButton.setDisable(true);
         nextButton.setText("Checking Internet");
         m_logger.debug("Starting internet check");
-        Thread thread = new Thread(() -> {
-            try {
-                // Test for connection to the oracle site. If no connection, show an error
-                HttpURLConnection connection = (HttpURLConnection) DownloadController.JRE_URL.openConnection();
-                connection.connect();
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    m_logger.debug("Internet check successful, moving to download");
-                    // We have a connection, load the next page
-                    Platform.runLater(() -> {
-                        Parent root = null;
-                        try {
-                            root = FXMLLoader.load(getClass().getResource("/fxml/download.fxml"));
-                        } catch (IOException e) {
-                            m_logger.error("Error when attempting to load the download window.", e);
-                            MainApp.showErrorScreen(e);
-                        }
-                        mainView.getScene().setRoot(root);
-                    });
-                } else {
-                    m_logger.debug("Could not connect to Oracle's website");
-                    Platform.runLater(() -> {
-                        try {
-                            MainApp.showErrorPopup("Could not connect to the JRE website at: " + DownloadController.JRE_URL_STRING + ", error code is " + connection.getResponseCode());
-                        } catch (IOException e) {
-                            m_logger.error("Error when showing the could not connect to oracle popup", e);
-                            MainApp.showErrorScreen(e);
-                        }
-                        nextButton.setDisable(false);
-                        nextButton.setText("Retry >");
-                    });
-                }
-            } catch (SocketTimeoutException e) {
-                Platform.runLater(() -> {
-                    m_logger.debug("Timed out when connecting to the Oracle webpage");
-                    MainApp.showErrorPopup("Timed out when connecting to the Oracle webpage.");
-                    nextButton.setDisable(false);
-                    nextButton.setText("Retry >");
-                });
-            } catch (java.io.IOException e) {
-                Platform.runLater(() -> {
-                    m_logger.debug("Error when attempting to connect to the internet");
-                    MainApp.showErrorScreen(e);
-                });
-            }
-        });
+        Thread thread = new Thread(this::checkInternet);
         thread.setDaemon(true);
         thread.start();
     }
@@ -127,13 +76,16 @@ public class InternetController extends AbstractControllerOld {
         File jre = chooser.showOpenDialog(mainView.getScene().getWindow());
         if (jre != null) {
             new Thread(() -> {
-                if (MainApp.checkJre(jre)) {
-                    Platform.runLater(() -> sendToUntar(jre));
+                if (checkExistingJRE(jre.getAbsolutePath(), jre.getAbsolutePath())) {
+                    Platform.runLater(nextButton::fire);
                 } else {
                     Platform.runLater(() ->
                                     Dialogs.create()
                                             .title("Invalid JRE")
-                                            .message("This JRE does not pass file verification. Please choose another or redownload the JRE")
+                                            .message("This JRE does not pass file verification. Please choose another " +
+                                                    "or redownload the JRE. If this is a fully created JRE, it must have" +
+                                                    " an md5 file containing the signature. The file should have the same " +
+                                                    "name, with a .md5 appended to the file extension.")
                                             .showError()
                     );
                 }
@@ -141,16 +93,112 @@ public class InternetController extends AbstractControllerOld {
         }
     }
 
-    private void sendToUntar(File jre) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/untar.fxml"));
+    /**
+     * Checks to see if either a previous jre or the jre creator have already been downloaded. If they have, it will
+     * configure the view to move onto the appropriate step. If they have not, then it will configure the controller
+     * to move onto the internet check
+     */
+    private boolean checkExistingJRE(String jreName, String jreCreatorName) {
+        final File jre = new File(jreName);
+        final File jreMd5 = new File(jreName + ".md5");
+        final File jreCreator = new File(jreCreatorName);
+
+        // First, check to see if the jre was previously created
+        if (jre.exists() && jreMd5.exists()) {
+            try {
+                BufferedReader md5Reader = new BufferedReader(new FileReader(jreMd5));
+                String md5 = md5Reader.readLine();
+                if (MainApp.hashFile(jre, md5)) {
+                    m_logger.debug("Found created JRE, setting next controller to be connect roborio");
+                    m_args.setArgument(Arguments.Argument.JRE_TAR, jre.getAbsolutePath());
+                    setupNextButton(Arguments.Controller.CONNECT_ROBORIO_CONTROLLER);
+                    return true;
+                }
+            } catch (IOException e) {
+                m_logger.warn("Error when attempting to verify the existing JRE", e);
+            }
+        }
+
+        // If that didn't check out, check for the jre creator
+        if (jreCreator.exists() && MainApp.checkJreCreator(jreCreator)) {
+            m_logger.debug("Found JRE creator, setting next controller to be untar");
+            m_args.setArgument(Arguments.Argument.JRE_CREATOR_ZIP, jreCreator.getAbsolutePath());
+            setupNextButton(Arguments.Controller.UNTAR_CONTROLLER);
+            return true;
+        }
+
+        // We didn't find either one, so setup the main view for downloading the JRE
+        Platform.runLater(() -> {
+            textView.setText(NO_JRE_STRING);
+            nextButton.setOnAction(this::handleInternetCheck);
+            nextButton.setDisable(false);
+        });
+        return false;
+    }
+
+    /**
+     * Sets up the view to show that the JRE or JRE creator were found already downloaded, and to move onto the
+     * correct places when the buttons are pressed.
+     *
+     * @param controller The controller to move onto when the next button is pressed
+     */
+    private void setupNextButton(Arguments.Controller controller) {
+        Platform.runLater(() -> {
+            alreadyDownloadedButton.setText("Redownload JRE");
+            textView.setText(JRE_FOUND_STRING);
+            alreadyDownloadedButton.setOnAction(this::handleInternetCheck);
+            nextButton.setOnAction((action) -> moveNext(controller));
+            nextButton.setDisable(false);
+        });
+    }
+
+    /**
+     * Checks the internet connection. If the connection is valid, it moves to the next controller. If not, then it sets
+     * up the button to retry
+     */
+    private void checkInternet() {
         try {
-            Parent root = loader.load();
-            UntarController controller = loader.getController();
-            controller.initialize(jre.getAbsolutePath());
-            mainView.getScene().setRoot(root);
-        } catch (IOException e) {
-            m_logger.error("Could not load the untar screen.", e);
-            MainApp.showErrorScreen(e);
+            // Test for connection to the oracle site. If no connection, show an error
+            HttpURLConnection connection = (HttpURLConnection) DownloadController.JRE_URL.openConnection();
+            connection.connect();
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                m_logger.debug("Internet check successful, moving to download");
+                // We have a connection, load the next page
+                Platform.runLater(() -> {
+                    Parent root = null;
+                    try {
+                        root = FXMLLoader.load(getClass().getResource("/fxml/download.fxml"));
+                    } catch (IOException e) {
+                        m_logger.error("Error when attempting to load the download window.", e);
+                        MainApp.showErrorScreen(e);
+                    }
+                    mainView.getScene().setRoot(root);
+                });
+            } else {
+                m_logger.debug("Could not connect to Oracle's website");
+                Platform.runLater(() -> {
+                    try {
+                        MainApp.showErrorPopup("Could not connect to the JRE website at: " + DownloadController.JRE_URL_STRING + ", error code is " + connection.getResponseCode());
+                    } catch (IOException e) {
+                        m_logger.error("Error when showing the could not connect to oracle popup", e);
+                        MainApp.showErrorScreen(e);
+                    }
+                    nextButton.setDisable(false);
+                    nextButton.setText("Retry >");
+                });
+            }
+        } catch (SocketTimeoutException e) {
+            Platform.runLater(() -> {
+                m_logger.debug("Timed out when connecting to the Oracle webpage");
+                MainApp.showErrorPopup("Timed out when connecting to the Oracle webpage.");
+                nextButton.setDisable(false);
+                nextButton.setText("Retry >");
+            });
+        } catch (java.io.IOException e) {
+            Platform.runLater(() -> {
+                m_logger.debug("Error when attempting to connect to the internet");
+                MainApp.showErrorScreen(e);
+            });
         }
     }
 }

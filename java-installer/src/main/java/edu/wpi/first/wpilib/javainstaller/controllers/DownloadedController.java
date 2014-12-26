@@ -36,7 +36,7 @@ public class DownloadedController extends AbstractControllerOld {
     }
 
     public void initialize(String path) {
-        if (!MainApp.checkJre(new File(path))) {
+        if (!MainApp.checkJreCreator(new File(path))) {
             textView.setText("An unknown error occurred when downloading the JRE, and the JRE is corrupt. To Redownload the JRE, hit back, and sign in again.");
             nextButton.setDisable(true);
         }

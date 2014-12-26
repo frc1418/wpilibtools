@@ -28,18 +28,15 @@ public abstract class AbstractController {
 
     @FXML
     protected BorderPane mainView;
-    private final Arguments m_args = new Arguments();
+    protected final Arguments m_args = new Arguments();
     private final Logger m_logger = LogManager.getLogger();
     private final boolean m_addToBackStack;
     private final Arguments.Controller m_currentController;
-    private final Arguments.Controller m_nextController;
 
     public AbstractController(boolean addToBackStack,
-                              Arguments.Controller currentController,
-                              Arguments.Controller nextController) {
+                              Arguments.Controller currentController) {
         m_addToBackStack = addToBackStack;
         m_currentController = currentController;
-        m_nextController = nextController;
     }
 
     /**
@@ -82,16 +79,17 @@ public abstract class AbstractController {
 
     /**
      * Helper method for moving to the next window. This view will be passed the current arguments instance from this
-     * class.
+     * class. This method <b>MUST</b> be called from the main JavaFX thread.
      */
-    protected void moveNext() {
-        moveWindow(m_nextController, m_args);
+    protected void moveNext(Arguments.Controller nextController) {
+        moveWindow(nextController, m_args);
     }
 
     /**
      * Helper method that takes care of the logic for moving from one screen to another.
+     *
      * @param controller The controller to move to
-     * @param args The arguments to use when moving
+     * @param args       The arguments to use when moving
      */
     private void moveWindow(Arguments.Controller controller, Arguments args) {
         m_logger.debug("Moving to controller " + controller);
