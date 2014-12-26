@@ -1,6 +1,7 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
 import edu.wpi.first.wpilib.javainstaller.Arguments;
+import edu.wpi.first.wpilib.javainstaller.ControllerFactory;
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -167,23 +168,27 @@ public class InternetController extends AbstractController {
                 m_logger.debug("Internet check successful, moving to download");
                 // We have a connection, load the next page
                 Platform.runLater(() -> {
-                    Parent root = null;
                     try {
-                        root = FXMLLoader.load(getClass().getResource("/fxml/download.fxml"));
+                        Parent root = ControllerFactory.getInstance()
+                                .initializeController(Arguments.Controller.DOWNLOAD_CONTROLLER, m_args);
+                        mainView.getScene().setRoot(root);
                     } catch (IOException e) {
                         m_logger.error("Error when attempting to load the download window.", e);
-                        MainApp.showErrorScreen(e);
+                        showErrorScreen(e);
                     }
-                    mainView.getScene().setRoot(root);
                 });
             } else {
                 m_logger.debug("Could not connect to Oracle's website");
                 Platform.runLater(() -> {
                     try {
-                        MainApp.showErrorPopup("Could not connect to the JRE website at: " + DownloadController.JRE_URL_STRING + ", error code is " + connection.getResponseCode());
+                        showErrorPopup("Could not connect to the JRE website at: " +
+                                DownloadController.JRE_URL_STRING +
+                                ", error code is " +
+                                connection.getResponseCode(),
+                                false);
                     } catch (IOException e) {
                         m_logger.error("Error when showing the could not connect to oracle popup", e);
-                        MainApp.showErrorScreen(e);
+                        showErrorScreen(e);
                     }
                     nextButton.setDisable(false);
                     nextButton.setText("Retry >");
@@ -192,14 +197,14 @@ public class InternetController extends AbstractController {
         } catch (SocketTimeoutException e) {
             Platform.runLater(() -> {
                 m_logger.debug("Timed out when connecting to the Oracle webpage");
-                MainApp.showErrorPopup("Timed out when connecting to the Oracle webpage.");
+                showErrorPopup("Timed out when connecting to the Oracle webpage.", false);
                 nextButton.setDisable(false);
                 nextButton.setText("Retry >");
             });
         } catch (java.io.IOException e) {
             Platform.runLater(() -> {
                 m_logger.debug("Error when attempting to connect to the internet");
-                MainApp.showErrorScreen(e);
+                showErrorScreen(e);
             });
         }
     }
