@@ -58,7 +58,7 @@ public abstract class AbstractController {
      * @param event The button event. Ignored
      */
     @FXML
-    private void handleCancel(ActionEvent event) {
+    protected void handleCancel(ActionEvent event) {
         showExitPopup();
     }
 
@@ -69,7 +69,7 @@ public abstract class AbstractController {
      * @param event The button event. Ignored
      */
     @FXML
-    private void handleBack(ActionEvent event) {
+    protected void handleBack(ActionEvent event) {
         Arguments.Controller backController = m_args.popBackstack();
         moveWindow(backController, m_args);
     }
