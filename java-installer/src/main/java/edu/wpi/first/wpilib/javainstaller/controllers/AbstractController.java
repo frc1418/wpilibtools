@@ -47,9 +47,6 @@ public abstract class AbstractController {
      */
     public void initialize(Arguments args) {
         m_args.copyFrom(args);
-        if (m_addToBackStack) {
-            m_args.pushBackstack(m_currentController);
-        }
         initializeClass();
     }
 
@@ -82,6 +79,9 @@ public abstract class AbstractController {
      * class. This method <b>MUST</b> be called from the main JavaFX thread.
      */
     protected void moveNext(Arguments.Controller nextController) {
+        if (m_addToBackStack) {
+            m_args.pushBackstack(m_currentController);
+        }
         moveWindow(nextController, m_args);
     }
 

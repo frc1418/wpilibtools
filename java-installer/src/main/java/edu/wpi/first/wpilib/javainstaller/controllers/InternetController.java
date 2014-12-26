@@ -49,7 +49,7 @@ public class InternetController extends AbstractController {
 
     @Override
     protected void initializeClass() {
-       // Set off the check JRE thread
+        // Set off the check JRE thread
         nextButton.setDisable(true);
         Thread checkJREThread = new Thread(() -> checkExistingJRE(Arguments.JRE_DEFAULT_NAME, Arguments.JRE_CREATOR_DEFAULT_NAME));
         checkJREThread.setDaemon(true);
@@ -168,23 +168,16 @@ public class InternetController extends AbstractController {
                 m_logger.debug("Internet check successful, moving to download");
                 // We have a connection, load the next page
                 Platform.runLater(() -> {
-                    try {
-                        Parent root = ControllerFactory.getInstance()
-                                .initializeController(Arguments.Controller.DOWNLOAD_CONTROLLER, m_args);
-                        mainView.getScene().setRoot(root);
-                    } catch (IOException e) {
-                        m_logger.error("Error when attempting to load the download window.", e);
-                        showErrorScreen(e);
-                    }
+                    moveNext(Arguments.Controller.DOWNLOAD_CONTROLLER);
                 });
             } else {
                 m_logger.debug("Could not connect to Oracle's website");
                 Platform.runLater(() -> {
                     try {
                         showErrorPopup("Could not connect to the JRE website at: " +
-                                DownloadController.JRE_URL_STRING +
-                                ", error code is " +
-                                connection.getResponseCode(),
+                                        DownloadController.JRE_URL_STRING +
+                                        ", error code is " +
+                                        connection.getResponseCode(),
                                 false);
                     } catch (IOException e) {
                         m_logger.error("Error when showing the could not connect to oracle popup", e);

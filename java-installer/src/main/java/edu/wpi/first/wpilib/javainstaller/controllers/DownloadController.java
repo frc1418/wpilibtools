@@ -1,7 +1,10 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
+import edu.wpi.first.wpilib.javainstaller.Arguments;
+import edu.wpi.first.wpilib.javainstaller.ControllerFactory;
 import edu.wpi.first.wpilib.javainstaller.MainApp;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,7 +26,7 @@ import java.net.URL;
 /**
  * Walks the user through downloading the JRE
  */
-public class DownloadController extends AbstractControllerOld {
+public class DownloadController extends AbstractController {
 
     public static final URL JRE_URL;
     public static final String JRE_URL_STRING = "http://www.oracle.com/technetwork/java/embedded/embedded-se/downloads/javase-embedded-downloads-2209751.html";
@@ -70,11 +73,11 @@ public class DownloadController extends AbstractControllerOld {
     private final Logger m_logger = LogManager.getLogger();
 
     public DownloadController() {
-        super("/fxml/connect_internet.fxml");
+        super(true, Arguments.Controller.DOWNLOAD_CONTROLLER);
     }
 
-    @FXML
-    private void initialize() {
+    @Override
+    protected void initializeClass() {
         CookieManager manager = new CookieManager();
         CookieHandler.setDefault(manager);
 
@@ -88,13 +91,13 @@ public class DownloadController extends AbstractControllerOld {
                     m_logger.debug("Signed in and have the .tar.gz link.");
                     FXMLLoader loader = new FXMLLoader();
                     try {
-                        Parent root = loader.load(getClass().getResource("/fxml/download_progress.fxml").openStream());
-                        DownloadProgressController controller = loader.getController();
-                        controller.initialize(new URL(newLoc));
+                        m_args.setArgument(Arguments.Argument.JRE_CREATOR_URL, newLoc);
+                        Parent root = ControllerFactory.getInstance()
+                                .initializeController(Arguments.Controller.DOWNLOAD_PROGRESS_CONTROLLER, m_args);
                         mainView.getScene().setRoot(root);
                     } catch (IOException e) {
-                        m_logger.error("Could not display the downloadprogress page", e);
-                        MainApp.showErrorScreen(e);
+                        m_logger.error("Could not display the download progress page", e);
+                        showErrorScreen(e);
                     }
                 });
             }

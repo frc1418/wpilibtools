@@ -12,7 +12,6 @@ public class Arguments {
     public static final String JRE_CREATOR_HASH = "082F08397B0D3F63844AB472B5111C8C";
     public static final String JRE_CREATOR_DEFAULT_NAME = "ejdk-8u6-fcs-b23-linux-arm-vfp-sflt-12_jun_2014.tar.gz";
     public static final String JRE_DEFAULT_NAME = "JRE.tar.gz";
-    public static final String JRE_MD5_DEFAULT_NAME = "JRE.tar.gz.md5";
 
     private final Stack<Controller> m_backStack = new Stack<>();
     private final Map<Argument, String> m_arguments = new HashMap<>();
@@ -72,7 +71,7 @@ public class Arguments {
      * This enum represents all of the different arguments that can be passed around.
      */
     public enum Argument {
-        JRE_CREATOR_ZIP, JRE_CREATOR_FOLDER, JRE_FOLDER, JRE_TAR
+        JRE_CREATOR_ZIP, JRE_CREATOR_FOLDER, JRE_FOLDER, JRE_TAR, JRE_CREATOR_URL
     }
 
     /**
