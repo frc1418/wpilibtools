@@ -83,7 +83,7 @@ public class Arguments {
         DOWNLOAD_PROGRESS_CONTROLLER("download_progress"),
         DOWNLOADED_CONTROLLER("downloaded"),
         ERROR_CONTROLLER("error"),
-        INTERNET_CONTROLLER("connect_internet"),
+        INTERNET_CONTROLLER("internet"),
         SUCCESS_CONTROLLER("success"),
         UNTAR_CONTROLLER("untar"),
         WELCOME_CONTROLLER("intro_screen");

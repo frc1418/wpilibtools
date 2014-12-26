@@ -27,15 +27,19 @@ import java.io.IOException;
 public abstract class AbstractController {
 
     @FXML
-    private BorderPane mainView;
+    protected BorderPane mainView;
     private final Arguments m_args = new Arguments();
     private final Logger m_logger = LogManager.getLogger();
     private final boolean m_addToBackStack;
-    private final Arguments.Controller m_controller;
+    private final Arguments.Controller m_currentController;
+    private final Arguments.Controller m_nextController;
 
-    public AbstractController(boolean addToBackStack, Arguments.Controller controller) {
+    public AbstractController(boolean addToBackStack,
+                              Arguments.Controller currentController,
+                              Arguments.Controller nextController) {
         m_addToBackStack = addToBackStack;
-        m_controller = controller;
+        m_currentController = currentController;
+        m_nextController = nextController;
     }
 
     /**
@@ -47,7 +51,7 @@ public abstract class AbstractController {
     public void initialize(Arguments args) {
         m_args.copyFrom(args);
         if (m_addToBackStack) {
-            m_args.pushBackstack(m_controller);
+            m_args.pushBackstack(m_currentController);
         }
         initializeClass();
     }
@@ -56,6 +60,7 @@ public abstract class AbstractController {
 
     /**
      * Handles the cancel button being pressed.
+     *
      * @param event The button event. Ignored
      */
     @FXML
@@ -66,17 +71,36 @@ public abstract class AbstractController {
     /**
      * Handles the back button being pressed. This uses the location provided by the concrete implementation to find
      * the correct back class and show it.
+     *
      * @param event The button event. Ignored
      */
     @FXML
     private void handleBack(ActionEvent event) {
         Arguments.Controller backController = m_args.popBackstack();
-        m_logger.debug("Moving back to controller " + backController);
-        try {
-            Parent root = ControllerFactory.getInstance().initializeController(backController, m_args);
+        moveWindow(backController, m_args);
+    }
 
+    /**
+     * Helper method for moving to the next window. This view will be passed the current arguments instance from this
+     * class.
+     */
+    protected void moveNext() {
+        moveWindow(m_nextController, m_args);
+    }
+
+    /**
+     * Helper method that takes care of the logic for moving from one screen to another.
+     * @param controller The controller to move to
+     * @param args The arguments to use when moving
+     */
+    private void moveWindow(Arguments.Controller controller, Arguments args) {
+        m_logger.debug("Moving to controller " + controller);
+        try {
+            Parent root = ControllerFactory.getInstance().initializeController(controller, args);
+            mainView.getScene().setRoot(root);
         } catch (IOException e) {
-            e.printStackTrace();
+            m_logger.error("Could not initialize controller " + controller, e);
+            showErrorScreen(e);
         }
     }
 

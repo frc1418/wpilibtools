@@ -38,8 +38,7 @@ public class MainApp extends Application {
 
     public void start(Stage stage) throws Exception {
         logger.trace("Starting application");
-        FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(getClass().getResource("/fxml/intro_screen.fxml"));
+        Parent root = ControllerFactory.getInstance().initializeController(Arguments.Controller.WELCOME_CONTROLLER, new Arguments());
 
         Scene scene = new Scene(root);
         _scene = scene;

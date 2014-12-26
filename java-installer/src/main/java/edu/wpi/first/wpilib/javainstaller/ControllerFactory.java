@@ -42,15 +42,11 @@ public final class ControllerFactory {
      * @throws java.io.IOException If there is an error loading the given controller
      */
     public Parent initializeController(Arguments.Controller controllerName, Arguments args) throws IllegalArgumentException, IOException {
+        m_logger.debug("Loading controller " + controllerName);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(controllerName.getPath()));
         Parent root = loader.load();
         AbstractController controller = loader.getController();
         controller.initialize(args);
         return root;
     }
-
-    private String getControllerPath(String controller) {
-        return ";";
-    }
-
 }
