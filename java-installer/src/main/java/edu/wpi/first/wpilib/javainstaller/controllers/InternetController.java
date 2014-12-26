@@ -15,6 +15,7 @@ import org.controlsfx.dialog.Dialogs;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.nio.Buffer;
 
 /**
  * Handles ensuring that the internet is up and running on the system before proceeding
@@ -104,10 +105,11 @@ public class InternetController extends AbstractController {
 
         // First, check to see if the jre was previously created
         if (jre.exists() && jreMd5.exists()) {
+            BufferedReader md5Reader = null;
             try {
-                BufferedReader md5Reader = new BufferedReader(new FileReader(jreMd5));
+                md5Reader = new BufferedReader(new FileReader(jreMd5));
                 String md5 = md5Reader.readLine();
-                if (MainApp.hashFile(jre, md5)) {
+                if (MainApp.checkFileHash(jre, md5)) {
                     m_logger.debug("Found created JRE, setting next controller to be connect roborio");
                     m_args.setArgument(Arguments.Argument.JRE_TAR, jre.getAbsolutePath());
                     setupNextButton(Arguments.Controller.CONNECT_ROBORIO_CONTROLLER);
@@ -115,6 +117,14 @@ public class InternetController extends AbstractController {
                 }
             } catch (IOException e) {
                 m_logger.warn("Error when attempting to verify the existing JRE", e);
+            } finally {
+                if (md5Reader != null) {
+                    try {
+                        md5Reader.close();
+                    } catch (IOException e) {
+                        m_logger.warn("Error when closing the md5 file stream", e);
+                    }
+                }
             }
         }
 

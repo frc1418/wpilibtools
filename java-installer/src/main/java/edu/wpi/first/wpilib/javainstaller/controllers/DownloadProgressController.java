@@ -1,5 +1,6 @@
 package edu.wpi.first.wpilib.javainstaller.controllers;
 
+import com.sun.xml.internal.fastinfoset.algorithm.BooleanEncodingAlgorithm;
 import edu.wpi.first.wpilib.javainstaller.Arguments;
 import edu.wpi.first.wpilib.javainstaller.ControllerFactory;
 import javafx.application.Platform;
@@ -9,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import jdk.nashorn.internal.ir.IfNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -182,15 +184,12 @@ public class DownloadProgressController extends AbstractController {
                     }
                 }
 
+                final boolean interrupted = Thread.interrupted();
+
                 // Move to the new window
                 Platform.runLater(() -> {
-                    try {
-                        Parent root = ControllerFactory.getInstance()
-                                .initializeController(Arguments.Controller.UNTAR_CONTROLLER, m_args);
-                        mainView.getScene().setRoot(root);
-                    } catch (IOException e) {
-                        m_logger.error("Error when loaded downloaded page", e);
-                        showErrorScreen(e);
+                    if (!interrupted) {
+                        moveNext(Arguments.Controller.UNTAR_CONTROLLER);
                     }
                 });
             }

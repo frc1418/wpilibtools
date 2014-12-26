@@ -89,6 +89,7 @@ public class Arguments {
         INTERNET_CONTROLLER("internet"),
         SUCCESS_CONTROLLER("success"),
         UNTAR_CONTROLLER("untar"),
+        TAR_JRE_CONTROLLER("tar_jre"),
         WELCOME_CONTROLLER("intro_screen");
 
         private final String m_path;

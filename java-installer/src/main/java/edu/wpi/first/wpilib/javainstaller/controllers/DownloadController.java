@@ -89,16 +89,8 @@ public class DownloadController extends AbstractController {
             if (signedIn && newLoc.endsWith("tar.gz")) {
                 Platform.runLater(() -> {
                     m_logger.debug("Signed in and have the .tar.gz link.");
-                    FXMLLoader loader = new FXMLLoader();
-                    try {
-                        m_args.setArgument(Arguments.Argument.JRE_CREATOR_URL, newLoc);
-                        Parent root = ControllerFactory.getInstance()
-                                .initializeController(Arguments.Controller.DOWNLOAD_PROGRESS_CONTROLLER, m_args);
-                        mainView.getScene().setRoot(root);
-                    } catch (IOException e) {
-                        m_logger.error("Could not display the download progress page", e);
-                        showErrorScreen(e);
-                    }
+                    m_args.setArgument(Arguments.Argument.JRE_CREATOR_URL, newLoc);
+                    moveNext(Arguments.Controller.DOWNLOAD_PROGRESS_CONTROLLER);
                 });
             }
         });

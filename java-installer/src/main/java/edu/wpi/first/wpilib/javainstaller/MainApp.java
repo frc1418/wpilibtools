@@ -112,39 +112,44 @@ public class MainApp extends Application {
      */
     public static boolean checkJreCreator(File jre) {
         logger.debug("Found JRE, checking hash");
-        return hashFile(jre, Arguments.JRE_CREATOR_HASH);
+        return checkFileHash(jre, Arguments.JRE_CREATOR_HASH);
     }
 
     /**
      * Hashes a given file with the md5 algorithm, and compares it to a given hash.
-     * @param file The file to verify
+     *
+     * @param file    The file to verify
      * @param md5Hash The hash to check
      * @return True if the hash verifies, false if it doesn't or if there is an error hashing the file
      */
-    public static boolean hashFile(File file, String md5Hash) {
+    public static boolean checkFileHash(File file, String md5Hash) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            try (InputStream is = Files.newInputStream(Paths.get(file.getAbsolutePath()))) {
-                DigestInputStream ds = new DigestInputStream(is, md);
-                byte[] input = new byte[1024];
-
-                // Read the stream to the end to get the md5
-                while (ds.read(input) != -1) {
-                }
-
-                byte[] hash = md.digest();
-                StringBuilder sb = new StringBuilder();
-                for (byte b : hash) {
-                    sb.append(String.format("%02X", b));
-                }
-                String hashString = sb.toString();
-                logger.debug("Computed hash is " + hashString + ", official hash is " + md5Hash);
-                return hashString.equalsIgnoreCase(md5Hash);
-            }
+            String hashString = hashFile(file);
+            logger.debug("Computed hash is " + hashString + ", official hash is " + md5Hash);
+            return hashString.equalsIgnoreCase(md5Hash);
         } catch (NoSuchAlgorithmException | IOException e) {
             logger.warn("Could not create md5 hash", e);
             return false;
 
+        }
+    }
+
+    public static String hashFile(File file) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        try (InputStream is = Files.newInputStream(Paths.get(file.getAbsolutePath()))) {
+            DigestInputStream ds = new DigestInputStream(is, md);
+            byte[] input = new byte[1024];
+
+            // Read the stream to the end to get the md5
+            while (ds.read(input) != -1) {
+            }
+
+            byte[] hash = md.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02X", b));
+            }
+            return sb.toString();
         }
     }
 }
