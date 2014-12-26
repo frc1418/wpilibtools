@@ -73,6 +73,7 @@ public class InternetController extends AbstractController {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Oracle JRE");
         chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Compressed JRE", "*.tar.gz"));
+        m_logger.debug("Showing choose JRE picker");
         File jre = chooser.showOpenDialog(mainView.getScene().getWindow());
         if (jre != null) {
             new Thread(() -> {
@@ -129,6 +130,7 @@ public class InternetController extends AbstractController {
 
         // We didn't find either one, so setup the main view for downloading the JRE
         Platform.runLater(() -> {
+            m_logger.debug("No valid JRE found");
             textView.setText(NO_JRE_STRING);
             nextButton.setOnAction(this::handleInternetCheck);
             nextButton.setDisable(false);
