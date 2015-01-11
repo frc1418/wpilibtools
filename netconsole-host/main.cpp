@@ -221,6 +221,9 @@ int main(int argc, char* argv[])
 		int maxfd = max(raw_socket, pipes.read_fd()) + 1;
 		char buffer[BUFFER_SIZE];
 
+		setlinebuf(stdin);
+		setlinebuf(stdout);
+
 		// repeatedly select on the fd's
 		while (true)
 		{
