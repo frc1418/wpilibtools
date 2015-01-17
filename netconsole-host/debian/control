@@ -1,7 +1,7 @@
 Source: netconsole-launcher
 Section: utils
 Priority: optional
-Maintainer: Patrick Plenefisch <phplenefisch@wpi.edu>
+Maintainer: WPILib Developers <wpilib@wpi.edu>
 Build-Depends: debhelper (>= 9.0.0), cmake
 Standards-Version: 3.9.4
 

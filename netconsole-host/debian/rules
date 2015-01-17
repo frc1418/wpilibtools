@@ -10,19 +10,21 @@ DEBNAMEP=$(shell dpkg-parsechangelog -c1 |sed -n 's/^Source: \(.*\)$$/\1/p')_$(s
 	dh $@ 
 	
 override_dh_auto_configure:
-	dh_auto_configure $@ -- -DCMAKE_TOOLCHAIN_FILE=../../allwpilib-git/arm-toolchain.cmake
+	dh_auto_configure $@ -- -DCMAKE_TOOLCHAIN_FILE=../../allwpilib-git/arm-toolchain.cmake -DCMAKE_INSTALL_PREFIX=/usr/local/frc
 	
 override_dh_shlibdeps:
 	echo "shlibs:Depends=libstdc++6-4.9, libc6 (>= 2.17), libgcc1 (>= 4.7)" >> debian/netconsole-launcher.substvars
 	
 override_dh_gencontrol:
 	dh_gencontrol $@
-	sed --in-place= 's/Architecture: .*/Architecture: armv7a-vfp-neon/' debian/netconsole-launcher/DEBIAN/control
+	sed --in-place= 's/Architecture: .*/Architecture: armv7a-vfp/' debian/netconsole-launcher/DEBIAN/control
 
 override_dh_strip:
 	DEB_HOST_GNU_TYPE=arm-frc-linux-gnueabi dh_strip $@
 
 override_dh_builddeb:
-	dh_builddeb $@
-	cp ../$(DEBNAMEP)_armv7a-vfp-neon.deb ../$(DEBNAMEP)_$(DEB_HOST_ARCH).deb
+	dh_builddeb $@ -- -Zgzip
+	cp ../$(DEBNAMEP)_armv7a-vfp.deb ../$(DEBNAMEP)_$(DEB_HOST_ARCH).deb
+
+override_dh_usrlocal:
 

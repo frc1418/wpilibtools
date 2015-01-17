@@ -11,3 +11,6 @@ Makefile
 ejdk*
 *~
 .gradle/
+netconsole-host/debian/netconsole-launcher/
+netconsole-host/obj-*
+netconsole-launcher_*
