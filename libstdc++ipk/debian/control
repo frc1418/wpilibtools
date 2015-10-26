@@ -1,0 +1,17 @@
+Source: libstdc++6-4.9
+Priority: optional
+Maintainer: WPI Toolchain Developers <phplenefisch@wpi.edu>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Section: libs
+
+Package: libstdc++6-4.9
+Section: libs
+Priority: optional
+Architecture: any
+Description: GNU Standard C++ Library v3
+ This package contains an additional runtime library for C++ programs
+ built with the GNU compiler.
+ .
+ This package contains updated files from 4.9.3 g++ for use in FRC C++
+ programs only.
