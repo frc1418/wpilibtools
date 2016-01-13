@@ -12,5 +12,11 @@ ejdk*
 *~
 .gradle/
 netconsole-host/debian/netconsole-launcher/
+netconsole-host/debian/files
+netconsole-host/debian/netconsole-launcher.*
 netconsole-host/obj-*
 netconsole-launcher_*
+libstdc++6-4.9_*
+libstdc++ipk/debian/files
+libstdc++ipk/debian/libstdc++6-4.9/
+libstdc++ipk/debian/libstdc++6-4.9.*
